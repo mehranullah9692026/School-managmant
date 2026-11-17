@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>اسکول مینجمنٹ</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1c2430;--mu:#6b7686;--pr:#1f7a5c;--bd:#e2e6ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14181e;--card:#1d232b;--tx:#e8ecf1;--mu:#98a3b3;--pr:#3fb68b;--bd:#2c343f}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Noto Nastaliq Urdu","Noto Naskh Arabic",system-ui,sans-serif;line-height:1.9}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--pr);color:#fff}
+header button{background:#fff3;color:#fff;border:0;border-radius:8px;padding:4px 12px;font:inherit}
+nav{display:flex;gap:6px;overflow-x:auto;padding:8px;background:var(--card);border-bottom:1px solid var(--bd)}
+nav button{flex:none;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:20px;padding:2px 14px;font:inherit}
+nav button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+main{padding:12px;max-width:720px;margin:auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:120px}
+input,select{width:100%;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+.btn{background:var(--pr);color:#fff;border:0;border-radius:8px;padding:6px 14px;font:inherit}
+.btn.g{background:var(--bg);color:var(--tx);border:1px solid var(--bd)}
+.stat{text-align:center}.stat b{display:block;font-size:1.6em;color:var(--pr)}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bd)}
+.item:last-child{border:0}.mu{color:var(--mu);font-size:.85em}
+.tag{padding:0 10px;border-radius:12px;font-size:.85em}.ok{background:#1f7a5c22;color:var(--pr)}.no{background:#c0392b22;color:#c0392b}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<header><b id="ttl"></b><button id="lg"></button></header>
+<nav id="nav"></nav>
+<main id="v"></main>
+<script>
+var T={ur:{app:"اسکول مینجمنٹ",home:"ہوم",stu:"طلبہ",att:"حاضری",fee:"فیس",res:"نتائج",tch:"اساتذہ",tot:"کل طلبہ",pres:"آج حاضر",due:"بقایا فیس",name:"نام",cls:"کلاس",ph:"فون",add:"شامل کریں",del:"حذف",p:"حاضر",a:"غیر حاضر",paid:"ادا",unp:"بقایا",amt:"رقم",pay:"ادائیگی",sub:"مضمون",mk:"نمبر (100 میں سے)",sv:"محفوظ",none:"ابھی کچھ نہیں",sal:"تنخواہ",ti:"تاریخ",grade:"گریڈ",ntch:"استاد"},
+en:{app:"School Management",home:"Home",stu:"Students",att:"Attendance",fee:"Fees",res:"Results",tch:"Teachers",tot:"Total students",pres:"Present today",due:"Fees due",name:"Name",cls:"Class",ph:"Phone",add:"Add",del:"Delete",p:"Present",a:"Absent",paid:"Paid",unp:"Due",amt:"Amount",pay:"Record payment",sub:"Subject",mk:"Marks (out of 100)",sv:"Save",none:"Nothing yet",sal:"Subject/Salary",ti:"Date",grade:"Grade",ntch:"Teacher"}};
+var D={lang:"ur",tab:"home",s:[],t:[],at:{},f:[],r:[]},k="school_v1";
+try{var x=localStorage.getItem(k);if(x)D=JSON.parse(x)}catch(e){}
+function sv(){try{localStorage.setItem(k,JSON.stringify(D))}catch(e){}}
+function L(w){return T[D.lang][w]}
+function E(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function today(){return new Date().toISOString().slice(0,10)}
+function uid(){return Date.now()+Math.floor(Math.random()*999)}
+function grade(m){return m>=80?"A":m>=70?"B":m>=60?"C":m>=50?"D":"F"}
+function sname(id){var s=D.s.filter(function(i){return i.id==id})[0];return s?s.n:"-"}
+function dueOf(id){var s=D.s.filter(function(i){return i.id==id})[0];return s?(s.fee||0)-D.f.filter(function(p){return p.sid==id}).reduce(function(a,p){return a+p.a},0):0}
+var tabs=["home","stu","att","fee","res","tch"];
+function nav(){document.getElementById("ttl").textContent=L("app");document.getElementById("lg").textContent=D.lang=="ur"?"English":"اردو";document.documentElement.lang=D.lang;document.documentElement.dir=D.lang=="ur"?"rtl":"ltr";
+document.getElementById("nav").innerHTML=tabs.map(function(t){return '<button class="'+(D.tab==t?"on":"")+'" onclick="go(\''+t+'\')">'+L(t)+'</button>'}).join("")}
+function go(t){D.tab=t;sv();draw()}
+document.getElementById("lg").onclick=function(){D.lang=D.lang=="ur"?"en":"ur";sv();draw()};
+function opts(){return D.s.map(function(s){return '<option value="'+s.id+'">'+E(s.n)+' ('+E(s.c)+')</option>'}).join("")}
+function val(i){return document.getElementById(i).value.trim()}
+function draw(){nav();var h="",d=today();
+if(D.tab=="home"){var pr=D.s.filter(function(s){return(D.at[d]||{})[s.id]=="p"}).length;var du=D.s.reduce(function(a,s){return a+Math.max(0,dueOf(s.id))},0);
+h='<div class="row"><div class="card stat"><b>'+D.s.length+'</b>'+L("tot")+'</div><div class="card stat"><b>'+pr+'</b>'+L("pres")+'</div><div class="card stat"><b>'+du+'</b>'+L("due")+'</div></div>'}
+if(D.tab=="stu"){h='<div class="card"><div class="row"><input id="n" placeholder="'+L("name")+'"><input id="c" placeholder="'+L("cls")+'"><input id="p" placeholder="'+L("ph")+'" inputmode="tel"><input id="fe" placeholder="'+L("fee")+'" inputmode="numeric"></div><p><button class="btn" onclick="addS()">'+L("add")+'</button></p></div><div class="card">'+(D.s.length?D.s.map(function(s){return '<div class="item"><span>'+E(s.n)+' <span class="mu">'+E(s.c)+' · '+E(s.p||"")+'</span></span><button class="btn g" onclick="delS('+s.id+')">'+L("del")+'</button></div>'}).join(""):'<span class="mu">'+L("none")+'</span>')+'</div>'}
+if(D.tab=="att"){var m=D.at[d]||{};h='<div class="card"><b>'+d+'</b>'+(D.s.length?D.s.map(function(s){return '<div class="item"><span>'+E(s.n)+'</span><span><button class="btn'+(m[s.id]=="p"?"":" g")+'" onclick="mk('+s.id+',\'p\')">'+L("p")+'</button> <button class="btn'+(m[s.id]=="a"?"":" g")+'" onclick="mk('+s.id+',\'a\')">'+L("a")+'</button></span></div>'}).join(""):'<p class="mu">'+L("none")+'</p>')+'</div>'}
+if(D.tab=="fee"){h='<div class="card"><div class="row"><select id="fs">'+opts()+'</select><input id="fa" placeholder="'+L("amt")+'" inputmode="numeric"></div><p><button class="btn" onclick="addF()">'+L("pay")+'</button></p></div><div class="card">'+(D.s.length?D.s.map(function(s){var u=dueOf(s.id);return '<div class="item"><span>'+E(s.n)+'</span><span class="tag '+(u>0?"no":"ok")+'">'+(u>0?L("unp")+" "+u:L("paid"))+'</span></div>'}).join(""):'<span class="mu">'+L("none")+'</span>')+'</div>'}
+if(D.tab=="res"){h='<div class="card"><div class="row"><select id="rs">'+opts()+'</select><input id="rj" placeholder="'+L("sub")+'"><input id="rm" placeholder="'+L("mk")+'" inputmode="numeric"></div><p><button class="btn" onclick="addR()">'+L("sv")+'</button></p></div><div class="card scroll">'+(D.r.length?D.r.map(function(r,i){return '<div class="item"><span>'+E(sname(r.sid))+' · '+E(r.j)+'</span><span>'+r.m+' <span class="tag ok">'+grade(r.m)+'</span> <button class="btn g" onclick="delR('+i+')">'+L("del")+'</button></span></div>'}).join(""):'<span class="mu">'+L("none")+'</span>')+'</div>'}
+if(D.tab=="tch"){h='<div class="card"><div class="row"><input id="tn" placeholder="'+L("ntch")+'"><input id="ts" placeholder="'+L("sal")+'"></div><p><button class="btn" onclick="addT()">'+L("add")+'</button></p></div><div class="card">'+(D.t.length?D.t.map(function(t){return '<div class="item"><span>'+E(t.n)+' <span class="mu">'+E(t.s)+'</span></span><button class="btn g" onclick="delT('+t.id+')">'+L("del")+'</button></div>'}).join(""):'<span class="mu">'+L("none")+'</span>')+'</div>'}
+document.getElementById("v").innerHTML=h}
+function addS(){var n=val("n");if(!n)return;D.s.push({id:uid(),n:n,c:val("c"),p:val("p"),fee:Number(val("fe"))||0});sv();draw()}
+function delS(i){D.s=D.s.filter(function(s){return s.id!=i});sv();draw()}
+function mk(i,v){var d=today();D.at[d]=D.at[d]||{};D.at[d][i]=v;sv();draw()}
+function addF(){var a=Number(val("fa"));if(!a||!D.s.length)return;D.f.push({sid:val("fs"),a:a,d:today()});sv();draw()}
+function addR(){var m=Number(val("rm"));if(!D.s.length||!val("rj")||isNaN(m)||val("rm")==="")return;D.r.push({sid:val("rs"),j:val("rj"),m:Math.min(100,m)});sv();draw()}
+function delR(i){D.r.splice(i,1);sv();draw()}
+function addT(){var n=val("tn");if(!n)return;D.t.push({id:uid(),n:n,s:val("ts")});sv();draw()}
+function delT(i){D.t=D.t.filter(function(t){return t.id!=i});sv();draw()}
+draw();
+</script>
+</body>
+</html>
